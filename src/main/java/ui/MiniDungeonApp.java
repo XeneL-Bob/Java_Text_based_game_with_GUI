@@ -1,3 +1,5 @@
+// ui/MiniDungeonApp.java - Updated with blacktile fallback for unknown tiles
+
 package ui;
 
 import core.*;
@@ -32,7 +34,6 @@ public class MiniDungeonApp extends Application {
         root.setPadding(new Insets(10));
         root.setAlignment(Pos.TOP_CENTER);
 
-        // Background image
         try {
             URL bgUrl = getClass().getResource("/images/background.png");
             if (bgUrl != null) {
@@ -49,7 +50,6 @@ public class MiniDungeonApp extends Application {
             System.out.println("Background image not found.");
         }
 
-        // Stats and hearts
         HBox statsBox = new HBox(20);
         heartBox = new HBox(5);
         scoreLabel = new Label();
@@ -57,14 +57,12 @@ public class MiniDungeonApp extends Application {
         statsBox.getChildren().addAll(new Label("HP:"), heartBox, scoreLabel, stepLabel);
         root.getChildren().add(statsBox);
 
-        // Map grid
         mapGrid = new GridPane();
         mapGrid.setHgap(5);
         mapGrid.setVgap(5);
         updateMap();
         root.getChildren().add(mapGrid);
 
-        // Movement Buttons
         HBox controlBox = new HBox(10);
         controlBox.setAlignment(Pos.CENTER);
 
@@ -81,7 +79,6 @@ public class MiniDungeonApp extends Application {
         controlBox.getChildren().addAll(left, up, down, right);
         root.getChildren().add(controlBox);
 
-        // Action Buttons
         HBox actionBox = new HBox(10);
         Button saveBtn = new Button("Save");
         Button loadBtn = new Button("Load");
@@ -104,7 +101,6 @@ public class MiniDungeonApp extends Application {
         actionBox.getChildren().addAll(saveBtn, loadBtn, helpBtn, topBtn);
         root.getChildren().add(actionBox);
 
-        // Log area
         logArea = new TextArea();
         logArea.setPrefRowCount(5);
         logArea.setEditable(false);
@@ -142,7 +138,9 @@ public class MiniDungeonApp extends Application {
         heartBox.getChildren().clear();
         int hp = engine.getPlayer().getHP();
         for (int i = 0; i < hp; i++) {
-            ImageView heart = new ImageView(safeLoad("/images/heart.png"));
+            URL url = getClass().getResource("/images/heart.png");
+            if (url == null) continue;
+            ImageView heart = new ImageView(new Image(url.toExternalForm()));
             heart.setFitHeight(20);
             heart.setFitWidth(20);
             heartBox.getChildren().add(heart);
@@ -151,26 +149,25 @@ public class MiniDungeonApp extends Application {
 
     private void updateMap() {
         mapGrid.getChildren().clear();
-        char[][] map = engine.getMap().getGrid();
+        Player player = engine.getPlayer();
+        char[][] visibleMap = engine.getMap().getVisibleGrid(player.getX(), player.getY());
 
         for (int row = 0; row < 10; row++) {
             for (int col = 0; col < 10; col++) {
-                char symbol = map[row][col];
+                char symbol = visibleMap[row][col];
                 Image image;
-
                 switch (symbol) {
-                    case 'P': image = safeLoad("/images/player.png"); break;
-                    case 'M': image = safeLoad("/images/mutantmelee.png"); break;
-                    case 'R': image = safeLoad("/images/mutantranged.png"); break;
-                    case 'T': image = safeLoad("/images/trap.png"); break;
-                    case 'G': image = safeLoad("/images/gold.png"); break;
-                    case 'L': image = safeLoad("/images/ladder.png"); break;
-                    case 'E': image = safeLoad("/images/emptytile.png"); break;
-                    case 'W': image = safeLoad("/images/Wall.png"); break;
-                    case 'H': image = safeLoad("/images/heart.png"); break;
-                    default:  image = safeLoad("/images/emptytile.png"); break;
+                    case 'P': image = loadImage("player.png"); break;
+                    case 'M': image = loadImage("mutantmelee.png"); break;
+                    case 'R': image = loadImage("mutantranged.png"); break;
+                    case 'T': image = loadImage("trap.png"); break;
+                    case 'G': image = loadImage("gold.png"); break;
+                    case 'L': image = loadImage("ladder.png"); break;
+                    case 'E': image = loadImage("emptytile.png"); break;
+                    case 'W': image = loadImage("Wall.png"); break;
+                    case 'H': image = loadImage("heart.png"); break;
+                    default:  image = loadImage("blacktile.png"); break;
                 }
-
                 ImageView imageView = new ImageView(image);
                 imageView.setFitWidth(32);
                 imageView.setFitHeight(32);
@@ -179,13 +176,11 @@ public class MiniDungeonApp extends Application {
         }
     }
 
-    private Image safeLoad(String path) {
-        URL url = getClass().getResource(path);
-        if (url == null) {
-            System.err.println("Missing resource: " + path);
-            return new Image(getClass().getResource("/images/emptytile.png").toExternalForm());
-        }
-        return new Image(url.toExternalForm());
+    private Image loadImage(String name) {
+        URL url = getClass().getResource("/images/" + name);
+        if (url != null) return new Image(url.toExternalForm());
+        System.err.println("Missing resource: /images/" + name);
+        return new Image(getClass().getResource("/images/blacktile.png").toExternalForm());
     }
 
     private void log(String message) {

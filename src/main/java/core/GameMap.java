@@ -1,4 +1,4 @@
-// core/GameMap.java - Handles map generation, item placement, and interactions
+// core/GameMap.java - Now includes wall collision and vision blocking
 
 package core;
 
@@ -16,6 +16,7 @@ public class GameMap implements Serializable {
         this.grid = new char[10][10];
         this.items = new ArrayList<>();
         for (char[] row : grid) Arrays.fill(row, ' ');
+        generateMaze();
         generateMap(difficulty);
     }
 
@@ -31,9 +32,17 @@ public class GameMap implements Serializable {
         return player != null && player.getX() == x && player.getY() == y;
     }
 
-    private void generateMap(int difficulty) {
+    private void generateMaze() {
         Random rand = new Random();
+        for (int i = 0; i < 20; i++) {
+            int x = rand.nextInt(10);
+            int y = rand.nextInt(10);
+            if ((x == 0 && y == 9) || (x == 9 && y == 0)) continue; // Keep entry & ladder path clear
+            grid[y][x] = 'W';
+        }
+    }
 
+    private void generateMap(int difficulty) {
         player = new Player(0, 9);
         grid[9][0] = 'P';
         place(new Entry(0, 9));
@@ -52,13 +61,46 @@ public class GameMap implements Serializable {
         do {
             x = rand.nextInt(10);
             y = rand.nextInt(10);
-        } while (isOccupied(x, y));
+        } while (isOccupied(x, y) || grid[y][x] == 'W');
         item.setPosition(x, y);
         place(item);
     }
 
+    public boolean isWall(int x, int y) {
+        return isInBounds(x, y) && grid[y][x] == 'W';
+    }
+
+    public boolean isInBounds(int x, int y) {
+        return x >= 0 && x < 10 && y >= 0 && y < 10;
+    }
+
     public char[][] getGrid() {
         return grid;
+    }
+
+    public char[][] getVisibleGrid(int px, int py) {
+        char[][] vis = new char[10][10];
+        for (int y = 0; y < 10; y++) {
+            for (int x = 0; x < 10; x++) {
+                vis[y][x] = ' ';
+            }
+        }
+
+        for (int dy = -2; dy <= 2; dy++) {
+            for (int dx = -2; dx <= 2; dx++) {
+                int nx = px + dx;
+                int ny = py + dy;
+                if (isInBounds(nx, ny)) {
+                    // block sight beyond wall
+                    if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1) {
+                        vis[ny][nx] = grid[ny][nx];
+                    } else if (grid[py + Integer.signum(dy)][px + Integer.signum(dx)] != 'W') {
+                        vis[ny][nx] = grid[ny][nx];
+                    }
+                }
+            }
+        }
+        return vis;
     }
 
     public Player getPlayer() {
@@ -70,9 +112,11 @@ public class GameMap implements Serializable {
     }
 
     public void updatePlayerPosition(int newX, int newY) {
-        grid[player.getY()][player.getX()] = ' ';
-        player.setPosition(newX, newY);
-        grid[newY][newX] = 'P';
+        if (!isWall(newX, newY)) {
+            grid[player.getY()][player.getX()] = 'E';
+            player.setPosition(newX, newY);
+            grid[newY][newX] = 'P';
+        }
     }
 
     public Item getItemAt(int x, int y) {
@@ -84,7 +128,7 @@ public class GameMap implements Serializable {
 
     public void removeItem(Item item) {
         items.remove(item);
-        grid[item.getY()][item.getX()] = ' ';
+        grid[item.getY()][item.getX()] = 'E';
     }
 
     public int getLevel() {
