@@ -26,11 +26,6 @@ application {
     mainClass = 'ui.MiniDungeonApp'
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
 
 tasks.withType(JavaExec).configureEach {
     // This makes JavaFX work by pointing to the correct modules
