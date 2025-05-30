@@ -12,9 +12,11 @@ repositories {
 }
 
 dependencies {
+    // JavaFX dependencies
     implementation "org.openjfx:javafx-controls:21"
     implementation "org.openjfx:javafx-fxml:21"
 
+    // JUnit 5 dependencies
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
 }
@@ -30,4 +32,13 @@ application {
 
 test {
     useJUnitPlatform()
+}
+
+// Include resources (e.g. images) in build
+sourceSets {
+    main {
+        resources {
+            srcDirs = ['src/main/resources']
+        }
+    }
 }

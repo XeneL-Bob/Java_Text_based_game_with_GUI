@@ -1,5 +1,3 @@
-// JavaFX GUI Entry Point: MiniDungeonApp.java
-
 package ui;
 
 import core.*;
@@ -14,6 +12,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+
+import java.net.URL;
 
 public class MiniDungeonApp extends Application {
 
@@ -30,19 +30,38 @@ public class MiniDungeonApp extends Application {
 
         VBox root = new VBox(10);
         root.setPadding(new Insets(10));
+        root.setAlignment(Pos.TOP_CENTER);
 
-        // Top Info Panel
+        // Background image
+        try {
+            URL bgUrl = getClass().getResource("/images/background.png");
+            if (bgUrl != null) {
+                BackgroundImage bgImage = new BackgroundImage(
+                        new Image(bgUrl.toExternalForm(), 800, 600, false, true),
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundPosition.CENTER,
+                        BackgroundSize.DEFAULT
+                );
+                root.setBackground(new Background(bgImage));
+            }
+        } catch (Exception e) {
+            System.out.println("Background image not found.");
+        }
+
+        // Stats and hearts
         HBox statsBox = new HBox(20);
-        heartBox = new HBox(2);
+        heartBox = new HBox(5);
         scoreLabel = new Label();
         stepLabel = new Label();
-        statsBox.getChildren().addAll(heartBox, scoreLabel, stepLabel);
+        statsBox.getChildren().addAll(new Label("HP:"), heartBox, scoreLabel, stepLabel);
         root.getChildren().add(statsBox);
 
-        // Map
+        // Map grid
         mapGrid = new GridPane();
-        mapGrid.setHgap(1);
-        mapGrid.setVgap(1);
+        mapGrid.setHgap(5);
+        mapGrid.setVgap(5);
+        updateMap();
         root.getChildren().add(mapGrid);
 
         // Movement Buttons
@@ -85,17 +104,15 @@ public class MiniDungeonApp extends Application {
         actionBox.getChildren().addAll(saveBtn, loadBtn, helpBtn, topBtn);
         root.getChildren().add(actionBox);
 
-        // Log Area
+        // Log area
         logArea = new TextArea();
         logArea.setPrefRowCount(5);
         logArea.setEditable(false);
         root.getChildren().add(logArea);
 
         updateStats();
-        updateMap();
 
-        Scene scene = new Scene(root);
-        primaryStage.setScene(scene);
+        primaryStage.setScene(new Scene(root));
         primaryStage.show();
     }
 
@@ -116,40 +133,59 @@ public class MiniDungeonApp extends Application {
     }
 
     private void updateStats() {
-        updateHearts(engine.getPlayer().getHP());
+        updateHearts();
         scoreLabel.setText("Score: " + engine.getPlayer().getScore());
         stepLabel.setText("Steps: " + engine.getPlayer().getSteps());
     }
 
-    private void updateHearts(int hp) {
+    private void updateHearts() {
         heartBox.getChildren().clear();
-        Image heartImage = new Image(getClass().getResource("/images/heart.png").toExternalForm(), 20, 20, true, true);
+        int hp = engine.getPlayer().getHP();
         for (int i = 0; i < hp; i++) {
-            heartBox.getChildren().add(new ImageView(heartImage));
+            ImageView heart = new ImageView(safeLoad("/images/heart.png"));
+            heart.setFitHeight(20);
+            heart.setFitWidth(20);
+            heartBox.getChildren().add(heart);
         }
     }
 
     private void updateMap() {
         mapGrid.getChildren().clear();
         char[][] map = engine.getMap().getGrid();
+
         for (int row = 0; row < 10; row++) {
             for (int col = 0; col < 10; col++) {
-                String imageFile = switch (map[row][col]) {
-                    case 'P' -> "/images/player.png";
-                    case 'G' -> "/images/gold.png";
-                    case 'T' -> "/images/trap.png";
-                    case 'M' -> "/images/mutantmelee.png";
-                    case 'R' -> "/images/mutantranged.png";
-                    case 'L' -> "/images/ladder.png";
-                    case 'E' -> "/images/entrytile.png";
-                    case '#' -> "/images/Wall.png";
-                    default -> "/images/emptytile.png";
-                };
+                char symbol = map[row][col];
+                Image image;
 
-                ImageView tile = new ImageView(new Image(getClass().getResource(imageFile).toExternalForm(), 32, 32, true, true));
-                mapGrid.add(tile, col, row);
+                switch (symbol) {
+                    case 'P': image = safeLoad("/images/player.png"); break;
+                    case 'M': image = safeLoad("/images/mutantmelee.png"); break;
+                    case 'R': image = safeLoad("/images/mutantranged.png"); break;
+                    case 'T': image = safeLoad("/images/trap.png"); break;
+                    case 'G': image = safeLoad("/images/gold.png"); break;
+                    case 'L': image = safeLoad("/images/ladder.png"); break;
+                    case 'E': image = safeLoad("/images/emptytile.png"); break;
+                    case 'W': image = safeLoad("/images/Wall.png"); break;
+                    case 'H': image = safeLoad("/images/heart.png"); break;
+                    default:  image = safeLoad("/images/emptytile.png"); break;
+                }
+
+                ImageView imageView = new ImageView(image);
+                imageView.setFitWidth(32);
+                imageView.setFitHeight(32);
+                mapGrid.add(imageView, col, row);
             }
         }
+    }
+
+    private Image safeLoad(String path) {
+        URL url = getClass().getResource(path);
+        if (url == null) {
+            System.err.println("Missing resource: " + path);
+            return new Image(getClass().getResource("/images/emptytile.png").toExternalForm());
+        }
+        return new Image(url.toExternalForm());
     }
 
     private void log(String message) {
