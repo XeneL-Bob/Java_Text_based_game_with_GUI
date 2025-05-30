@@ -4,17 +4,13 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-/**
- * Manages the top 5 game scores.
- */
+
 public class ScoreManager {
 
     private static final String SCORE_FILE = "scores.dat";
     private static final int MAX_SCORES = 5;
 
-    /**
-     * Represents a score entry with score value and date.
-     */
+
     public static class ScoreEntry implements Serializable, Comparable<ScoreEntry> {
         private final int score;
         private final Date date;
@@ -45,8 +41,8 @@ public class ScoreManager {
     }
 
     /**
-     * Loads the score list from file.
-     * @return A list of ScoreEntry, or an empty list if the file is missing.
+     * Attempts to load the top scores from the file.
+     * @return A list of the top scores, or an empty list if there are no scores.
      */
     public static List<ScoreEntry> loadScores() {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(SCORE_FILE))) {

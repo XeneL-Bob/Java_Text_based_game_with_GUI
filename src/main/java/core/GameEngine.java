@@ -1,8 +1,3 @@
-*/
- * MiniDungeonGame
- * Core Engine and GUI (JavaFX) Implementation
- */
-
 import java.util.*;
 
 // 1. Define the base Item class and item types
