@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="core.GameEngineTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2025-05-30T12:38:53.732Z" hostname="X_B_I" time="0.017">
+<testsuite name="core.GameEngineTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2025-05-30T13:14:52.964Z" hostname="X_B_I" time="0.017">
   <properties/>
-  <testcase name="testGameOverOnZeroHP()" classname="core.GameEngineTest" time="0.009"/>
+  <testcase name="testGameOverOnZeroHP()" classname="core.GameEngineTest" time="0.01"/>
   <testcase name="testPlayerScoreIncreasesOnGold()" classname="core.GameEngineTest" time="0.001"/>
   <testcase name="testInitialPlayerPosition()" classname="core.GameEngineTest" time="0.001"/>
   <testcase name="testInvalidDirectionReturnsMessage()" classname="core.GameEngineTest" time="0.002"/>
-  <testcase name="testPlayerMoveUp()" classname="core.GameEngineTest" time="0.001"/>
-  <testcase name="testPlayerHPDecreasesOnTrap()" classname="core.GameEngineTest" time="0.001"/>
+  <testcase name="testPlayerMoveUp()" classname="core.GameEngineTest" time="0.0"/>
+  <testcase name="testPlayerHPDecreasesOnTrap()" classname="core.GameEngineTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
