@@ -47,7 +47,7 @@ Folder Structure:
 How to Build & Run (Using Gradle):
 ------------------------------------
 
-▶ Option 1: Command Line
+Option 1: Command Line
 ----------------------------
 1. Navigate to the project directory:
    > cd MiniDungeon
@@ -61,7 +61,7 @@ How to Build & Run (Using Gradle):
 4. To run tests:
    > gradle test
 
-▶ Option 2: Using IntelliJ IDEA
+Option 2: Using IntelliJ IDEA
 ----------------------------
 1. Open the project as a Gradle project.
 2. Set JavaFX SDK in your Project Structure:
@@ -89,16 +89,16 @@ Notes:
 ------------------------------------
 Troubleshooting:
 ------------------------------------
-✓ GUI Not Launching via Gradle?
+ GUI Not Launching via Gradle?
    - Ensure JavaFX is correctly referenced in VM options.
    - On CLI, use:
      > gradle run --args='--module-path "path_to_fx_lib" --add-modules javafx.controls,javafx.fxml'
 
-✓ Build Fails on Unit Tests?
+Build Fails on Unit Tests?
    - Make sure all core entities (Item, Trap, etc.) are declared public.
    - Rebuild after correcting access modifiers.
 
-✓ "Missing resource" errors?
+"Missing resource" errors?
    - Ensure your `/resources/images/` directory is correctly structured.
    - Files like `player.png`, `trap.png`, etc., must exist.
 
