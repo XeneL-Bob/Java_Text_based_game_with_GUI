@@ -1,4 +1,4 @@
-// ui/MiniDungeonApp.java - Updated with blacktile fallback for unknown tiles
+// ui/MiniDungeonApp.java - Updated with fog reveal and prep for maze logic
 
 package ui;
 
@@ -150,7 +150,7 @@ public class MiniDungeonApp extends Application {
     private void updateMap() {
         mapGrid.getChildren().clear();
         Player player = engine.getPlayer();
-        char[][] visibleMap = engine.getMap().getVisibleGrid(player.getX(), player.getY());
+        char[][] visibleMap = engine.getMap().getVisibleGridWithMemory(player.getX(), player.getY());
 
         for (int row = 0; row < 10; row++) {
             for (int col = 0; col < 10; col++) {

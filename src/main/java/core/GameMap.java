@@ -1,4 +1,4 @@
-// core/GameMap.java - Now includes wall collision and vision blocking
+// core/GameMap.java - Maze logic + Fog Memory
 
 package core;
 
@@ -7,6 +7,7 @@ import java.util.*;
 
 public class GameMap implements Serializable {
     private char[][] grid;
+    private boolean[][] revealed;
     private List<Item> items;
     private Player player;
     private int level;
@@ -14,9 +15,9 @@ public class GameMap implements Serializable {
     public GameMap(int level, int difficulty) {
         this.level = level;
         this.grid = new char[10][10];
+        this.revealed = new boolean[10][10];
         this.items = new ArrayList<>();
         for (char[] row : grid) Arrays.fill(row, ' ');
-        generateMaze();
         generateMap(difficulty);
     }
 
@@ -26,23 +27,22 @@ public class GameMap implements Serializable {
     }
 
     private boolean isOccupied(int x, int y) {
+        if (grid[y][x] == 'W') return true;
         for (Item item : items)
             if (item.getX() == x && item.getY() == y)
                 return true;
         return player != null && player.getX() == x && player.getY() == y;
     }
 
-    private void generateMaze() {
-        Random rand = new Random();
-        for (int i = 0; i < 20; i++) {
-            int x = rand.nextInt(10);
-            int y = rand.nextInt(10);
-            if ((x == 0 && y == 9) || (x == 9 && y == 0)) continue; // Keep entry & ladder path clear
-            grid[y][x] = 'W';
-        }
-    }
-
     private void generateMap(int difficulty) {
+        Random rand = new Random();
+
+        if (level >= 2) {
+            generateMaze();
+        } else {
+            for (char[] row : grid) Arrays.fill(row, 'E');
+        }
+
         player = new Player(0, 9);
         grid[9][0] = 'P';
         place(new Entry(0, 9));
@@ -53,6 +53,15 @@ public class GameMap implements Serializable {
         for (int i = 0; i < 2; i++) placeRandom(new Potion(-1, -1));
         for (int i = 0; i < 3; i++) placeRandom(new MeleeMutant(-1, -1));
         for (int i = 0; i < difficulty; i++) placeRandom(new RangedMutant(-1, -1));
+    }
+
+    private void generateMaze() {
+        for (int y = 0; y < 10; y++) {
+            for (int x = 0; x < 10; x++) {
+                grid[y][x] = (Math.random() < 0.3) ? 'W' : 'E';
+            }
+        }
+        grid[9][0] = 'E'; // Entry point
     }
 
     private void placeRandom(Item item) {
@@ -66,41 +75,8 @@ public class GameMap implements Serializable {
         place(item);
     }
 
-    public boolean isWall(int x, int y) {
-        return isInBounds(x, y) && grid[y][x] == 'W';
-    }
-
-    public boolean isInBounds(int x, int y) {
-        return x >= 0 && x < 10 && y >= 0 && y < 10;
-    }
-
     public char[][] getGrid() {
         return grid;
-    }
-
-    public char[][] getVisibleGrid(int px, int py) {
-        char[][] vis = new char[10][10];
-        for (int y = 0; y < 10; y++) {
-            for (int x = 0; x < 10; x++) {
-                vis[y][x] = ' ';
-            }
-        }
-
-        for (int dy = -2; dy <= 2; dy++) {
-            for (int dx = -2; dx <= 2; dx++) {
-                int nx = px + dx;
-                int ny = py + dy;
-                if (isInBounds(nx, ny)) {
-                    // block sight beyond wall
-                    if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1) {
-                        vis[ny][nx] = grid[ny][nx];
-                    } else if (grid[py + Integer.signum(dy)][px + Integer.signum(dx)] != 'W') {
-                        vis[ny][nx] = grid[ny][nx];
-                    }
-                }
-            }
-        }
-        return vis;
     }
 
     public Player getPlayer() {
@@ -112,11 +88,55 @@ public class GameMap implements Serializable {
     }
 
     public void updatePlayerPosition(int newX, int newY) {
-        if (!isWall(newX, newY)) {
-            grid[player.getY()][player.getX()] = 'E';
-            player.setPosition(newX, newY);
-            grid[newY][newX] = 'P';
+        if (grid[newY][newX] == 'W') return;
+        grid[player.getY()][player.getX()] = 'E';
+        player.setPosition(newX, newY);
+        grid[newY][newX] = 'P';
+        revealAround(newX, newY);
+    }
+
+    private void revealAround(int x, int y) {
+        for (int dy = -2; dy <= 2; dy++) {
+            for (int dx = -2; dx <= 2; dx++) {
+                int nx = x + dx;
+                int ny = y + dy;
+                if (nx >= 0 && nx < 10 && ny >= 0 && ny < 10) {
+                    if (lineOfSightClear(x, y, nx, ny)) {
+                        revealed[ny][nx] = true;
+                    }
+                }
+            }
         }
+    }
+
+    private boolean lineOfSightClear(int x1, int y1, int x2, int y2) {
+        int dx = Math.abs(x2 - x1), dy = Math.abs(y2 - y1);
+        int sx = Integer.compare(x2, x1), sy = Integer.compare(y2, y1);
+        int err = dx - dy;
+
+        while (x1 != x2 || y1 != y2) {
+            if (grid[y1][x1] == 'W') return false;
+            int e2 = 2 * err;
+            if (e2 > -dy) {
+                err -= dy;
+                x1 += sx;
+            }
+            if (e2 < dx) {
+                err += dx;
+                y1 += sy;
+            }
+        }
+        return true;
+    }
+
+    public char[][] getVisibleGridWithMemory(int px, int py) {
+        char[][] visible = new char[10][10];
+        for (int y = 0; y < 10; y++) {
+            for (int x = 0; x < 10; x++) {
+                visible[y][x] = revealed[y][x] ? grid[y][x] : '?';
+            }
+        }
+        return visible;
     }
 
     public Item getItemAt(int x, int y) {
