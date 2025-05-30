@@ -10,12 +10,14 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    // JavaFX dependencies (replace version as needed)
-    def javafxVersion = "21"
+ext {
+    javafxVersion = '21'
+}
 
+dependencies {
     implementation "org.openjfx:javafx-controls:$javafxVersion"
     implementation "org.openjfx:javafx-fxml:$javafxVersion"
+    implementation "org.openjfx:javafx-base:$javafxVersion"
     implementation "org.openjfx:javafx-graphics:$javafxVersion"
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
@@ -26,12 +28,15 @@ application {
     mainClass = 'ui.MiniDungeonApp'
 }
 
+javafx {
+    version = "$javafxVersion"
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
 
 tasks.withType(JavaExec).configureEach {
-    // This makes JavaFX work by pointing to the correct modules
     jvmArgs += [
-        '--module-path', classpath.asPath,
-        '--add-modules', 'javafx.controls,javafx.fxml'
+        "--module-path", classpath.asPath,
+        "--add-modules", "javafx.controls,javafx.fxml"
     ]
 }
 

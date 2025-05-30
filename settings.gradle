@@ -1,2 +1,7 @@
+plugins {
+    id 'org.openjfx.javafxplugin' version '0.0.14'
+}
+
+
 rootProject.name = 'JAVA_TEXT_BASED_GAME_WITH_GUI'
 
