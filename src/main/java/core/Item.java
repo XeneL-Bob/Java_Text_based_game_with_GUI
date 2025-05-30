@@ -1,8 +1,9 @@
-// core/Item.java - Base class and all item types in one
-
 package core;
 
-public abstract class Item {
+import java.io.Serializable;
+
+// Abstract base class for all items on the map
+abstract class Item implements Serializable {
     protected int x, y;
 
     public Item(int x, int y) {
@@ -26,97 +27,83 @@ public abstract class Item {
     }
 }
 
-// ENTRY POINT
-class Entry extends Item {
-    public Entry(int x, int y) {
-        super(x, y);
-    }
+// --- Subclasses --- //
 
-    @Override
-    public char getSymbol() {
-        return 'E';
-    }
-}
-
-// WALL
-class Wall extends Item {
+class Wall extends Item implements Serializable {
     public Wall(int x, int y) {
         super(x, y);
     }
 
-    @Override
     public char getSymbol() {
         return '#';
     }
 }
 
-// LADDER
-class Ladder extends Item {
-    public Ladder(int x, int y) {
-        super(x, y);
-    }
-
-    @Override
-    public char getSymbol() {
-        return 'L';
-    }
-}
-
-// GOLD
-class Gold extends Item {
-    public Gold(int x, int y) {
-        super(x, y);
-    }
-
-    @Override
-    public char getSymbol() {
-        return 'G';
-    }
-}
-
-// POTION
-class Potion extends Item {
-    public Potion(int x, int y) {
-        super(x, y);
-    }
-
-    @Override
-    public char getSymbol() {
-        return 'H';
-    }
-}
-
-// TRAP
-class Trap extends Item {
+class Trap extends Item implements Serializable {
     public Trap(int x, int y) {
         super(x, y);
     }
 
-    @Override
     public char getSymbol() {
         return 'T';
     }
 }
 
-// MELEE MUTANT
-class MeleeMutant extends Item {
+class Gold extends Item implements Serializable {
+    public Gold(int x, int y) {
+        super(x, y);
+    }
+
+    public char getSymbol() {
+        return 'G';
+    }
+}
+
+class Potion extends Item implements Serializable {
+    public Potion(int x, int y) {
+        super(x, y);
+    }
+
+    public char getSymbol() {
+        return 'H';
+    }
+}
+
+class Entry extends Item implements Serializable {
+    public Entry(int x, int y) {
+        super(x, y);
+    }
+
+    public char getSymbol() {
+        return 'E';
+    }
+}
+
+class Ladder extends Item implements Serializable {
+    public Ladder(int x, int y) {
+        super(x, y);
+    }
+
+    public char getSymbol() {
+        return 'L';
+    }
+}
+
+class MeleeMutant extends Item implements Serializable {
     public MeleeMutant(int x, int y) {
         super(x, y);
     }
 
-    @Override
     public char getSymbol() {
         return 'M';
     }
 }
 
-// RANGED MUTANT
-class RangedMutant extends Item {
+class RangedMutant extends Item implements Serializable {
     public RangedMutant(int x, int y) {
         super(x, y);
     }
 
-    @Override
     public char getSymbol() {
         return 'R';
     }

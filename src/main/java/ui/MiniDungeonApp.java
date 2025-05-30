@@ -10,16 +10,18 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class MiniDungeonApp extends Application {
 
     private GameEngine engine;
     private TextArea logArea;
-    private Label hpLabel, scoreLabel, stepLabel;
+    private Label scoreLabel, stepLabel;
     private GridPane mapGrid;
+    private HBox heartBox;
 
     @Override
     public void start(Stage primaryStage) {
@@ -31,17 +33,16 @@ public class MiniDungeonApp extends Application {
 
         // Top Info Panel
         HBox statsBox = new HBox(20);
-        hpLabel = new Label();
+        heartBox = new HBox(2);
         scoreLabel = new Label();
         stepLabel = new Label();
-        statsBox.getChildren().addAll(hpLabel, scoreLabel, stepLabel);
+        statsBox.getChildren().addAll(heartBox, scoreLabel, stepLabel);
         root.getChildren().add(statsBox);
 
         // Map
         mapGrid = new GridPane();
-        mapGrid.setHgap(5);
-        mapGrid.setVgap(5);
-        updateMap();
+        mapGrid.setHgap(1);
+        mapGrid.setVgap(1);
         root.getChildren().add(mapGrid);
 
         // Movement Buttons
@@ -91,8 +92,10 @@ public class MiniDungeonApp extends Application {
         root.getChildren().add(logArea);
 
         updateStats();
+        updateMap();
 
-        primaryStage.setScene(new Scene(root));
+        Scene scene = new Scene(root);
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 
@@ -113,9 +116,17 @@ public class MiniDungeonApp extends Application {
     }
 
     private void updateStats() {
-        hpLabel.setText("HP: " + engine.getPlayer().getHP());
+        updateHearts(engine.getPlayer().getHP());
         scoreLabel.setText("Score: " + engine.getPlayer().getScore());
         stepLabel.setText("Steps: " + engine.getPlayer().getSteps());
+    }
+
+    private void updateHearts(int hp) {
+        heartBox.getChildren().clear();
+        Image heartImage = new Image(getClass().getResource("/images/heart.png").toExternalForm(), 20, 20, true, true);
+        for (int i = 0; i < hp; i++) {
+            heartBox.getChildren().add(new ImageView(heartImage));
+        }
     }
 
     private void updateMap() {
@@ -123,9 +134,20 @@ public class MiniDungeonApp extends Application {
         char[][] map = engine.getMap().getGrid();
         for (int row = 0; row < 10; row++) {
             for (int col = 0; col < 10; col++) {
-                Label cell = new Label(" " + map[row][col] + " ");
-                cell.setStyle("-fx-border-color: black; -fx-padding: 5; -fx-font-weight: bold;");
-                mapGrid.add(cell, col, row);
+                String imageFile = switch (map[row][col]) {
+                    case 'P' -> "/images/player.png";
+                    case 'G' -> "/images/gold.png";
+                    case 'T' -> "/images/trap.png";
+                    case 'M' -> "/images/mutantmelee.png";
+                    case 'R' -> "/images/mutantranged.png";
+                    case 'L' -> "/images/ladder.png";
+                    case 'E' -> "/images/entrytile.png";
+                    case '#' -> "/images/Wall.png";
+                    default -> "/images/emptytile.png";
+                };
+
+                ImageView tile = new ImageView(new Image(getClass().getResource(imageFile).toExternalForm(), 32, 32, true, true));
+                mapGrid.add(tile, col, row);
             }
         }
     }
