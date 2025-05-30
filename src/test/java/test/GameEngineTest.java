@@ -1,6 +1,6 @@
 // test/GameEngineTest.java - Unit Tests for Core Game Logic
 
-package test;
+package core;
 
 import core.*;
 import org.junit.jupiter.api.BeforeEach;
