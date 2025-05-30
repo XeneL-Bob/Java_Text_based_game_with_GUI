@@ -1,10 +1,8 @@
 // core/Item.java - Base class and all item types in one
 
-package core;
+papackage core;
 
-import java.io.Serializable;
-
-public abstract class Item implements Serializable {
+public abstract class Item {
     protected int x, y;
 
     public Item(int x, int y) {
@@ -21,21 +19,6 @@ public abstract class Item implements Serializable {
     public int getY() {
         return y;
     }
-
-    public void setPosition(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
-}
-
-class Wall extends Item {
-    public Wall(int x, int y) {
-        super(x, y);
-    }
-
-    public char getSymbol() {
-        return '#';
-    }
 }
 
 class Trap extends Item {
@@ -43,6 +26,7 @@ class Trap extends Item {
         super(x, y);
     }
 
+    @Override
     public char getSymbol() {
         return 'T';
     }
@@ -53,6 +37,7 @@ class Gold extends Item {
         super(x, y);
     }
 
+    @Override
     public char getSymbol() {
         return 'G';
     }
@@ -63,28 +48,9 @@ class Potion extends Item {
         super(x, y);
     }
 
+    @Override
     public char getSymbol() {
         return 'H';
-    }
-}
-
-class MeleeMutant extends Item {
-    public MeleeMutant(int x, int y) {
-        super(x, y);
-    }
-
-    public char getSymbol() {
-        return 'M';
-    }
-}
-
-class RangedMutant extends Item {
-    public RangedMutant(int x, int y) {
-        super(x, y);
-    }
-
-    public char getSymbol() {
-        return 'R';
     }
 }
 
@@ -93,17 +59,30 @@ class Ladder extends Item {
         super(x, y);
     }
 
+    @Override
     public char getSymbol() {
         return 'L';
     }
 }
 
-class Entry extends Item {
-    public Entry(int x, int y) {
+class Wall extends Item {
+    public Wall(int x, int y) {
         super(x, y);
     }
 
+    @Override
     public char getSymbol() {
-        return 'E';
+        return '#';
+    }
+}
+
+class Mutant extends Item {
+    public Mutant(int x, int y) {
+        super(x, y);
+    }
+
+    @Override
+    public char getSymbol() {
+        return 'M';
     }
 }

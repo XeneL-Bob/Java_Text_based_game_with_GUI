@@ -1,6 +1,7 @@
 plugins {
-    id 'application'
     id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.14'
 }
 
 group = 'minidungeon'
@@ -10,34 +11,21 @@ repositories {
     mavenCentral()
 }
 
-ext {
-    javafxVersion = '21'
-}
-
 dependencies {
-    implementation "org.openjfx:javafx-controls:$javafxVersion"
-    implementation "org.openjfx:javafx-fxml:$javafxVersion"
-    implementation "org.openjfx:javafx-base:$javafxVersion"
-    implementation "org.openjfx:javafx-graphics:$javafxVersion"
+    implementation "org.openjfx:javafx-controls:21"
+    implementation "org.openjfx:javafx-fxml:21"
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
 }
 
-application {
-    mainClass = 'ui.MiniDungeonApp'
-}
-
 javafx {
-    version = "$javafxVersion"
+    version = "21"
     modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
 
-tasks.withType(JavaExec).configureEach {
-    jvmArgs += [
-        "--module-path", classpath.asPath,
-        "--add-modules", "javafx.controls,javafx.fxml"
-    ]
+application {
+    mainClass = 'ui.MiniDungeonApp'
 }
 
 test {
